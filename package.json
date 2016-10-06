@@ -1,17 +1,17 @@
 {
-  "name": "videojs-vimvim",
-  "version": "0.0.0",
-  "description": "Vimeojs plugin based on the Vimeo Player API",
+  "name": "videojs-vimeo",
+  "version": "0.0.1",
+  "description": "Videojs Vimeo plugin using the official Vimeo Player API.",
   "main": "es5/plugin.js",
   "scripts": {
     "prebuild": "npm run clean",
     "build": "npm-run-all -p build:*",
     "build:js": "npm-run-all build:js:babel build:js:browserify build:js:bannerize build:js:collapse build:js:uglify",
     "build:js:babel": "babel src -d es5",
-    "build:js:bannerize": "bannerize dist/videojs-vimvim.js --banner=scripts/banner.ejs",
-    "build:js:browserify": "browserify . -g browserify-shim -s videojs-vimvim -o dist/videojs-vimvim.js",
-    "build:js:collapse": "bundle-collapser dist/videojs-vimvim.js -o dist/videojs-vimvim.min.js",
-    "build:js:uglify": "uglifyjs dist/videojs-vimvim.min.js --comments --mangle --compress -o dist/videojs-vimvim.min.js",
+    "build:js:bannerize": "bannerize dist/videojs-vimeo.js --banner=scripts/banner.ejs",
+    "build:js:browserify": "browserify . -g browserify-shim -s videojs-vimeo -o dist/videojs-vimeo.js",
+    "build:js:collapse": "bundle-collapser dist/videojs-vimeo.js -o dist/videojs-vimeo.min.js",
+    "build:js:uglify": "uglifyjs dist/videojs-vimeo.min.js --comments --mangle --compress -o dist/videojs-vimeo.min.js",
     "build:test": "babel-node scripts/build-test.js",
     "clean": "rimraf dist test/dist es5 && mkdirp dist test/dist es5",
     "lint": "vjsstandard",
@@ -43,10 +43,10 @@
     "sinon": "global:sinon",
     "video.js": "global:videojs"
   },
-  "style": "dist/videojs-vimvim.css",
+  "style": "dist/videojs-vimeo.css",
   "videojs-plugin": {
-    "style": "dist/videojs-vimvim.css",
-    "script": "dist/videojs-vimvim.min.js"
+    "style": "dist/videojs-vimeo.css",
+    "script": "dist/videojs-vimeo.min.js"
   },
   "vjsstandard": {
     "ignore": [
@@ -66,8 +66,7 @@
     "es5/",
     "index.html",
     "scripts/",
-    "src/",
-    "test/"
+    "src/"
   ],
   "dependencies": {
     "browserify-versionify": "^1.0.6",

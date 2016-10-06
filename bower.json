@@ -1,9 +1,9 @@
 {
-  "name": "videojs-vimvim",
+  "name": "videojs-vimeo",
   "author": "Jimmy Bourassa &lt;jbourassa@didacte.com&gt;",
   "license": "MIT",
   "main": [
-    "dist/videojs-vimvim.min.js"
+    "dist/videojs-vimeo.min.js"
   ],
   "keywords": [
     "videojs",

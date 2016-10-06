@@ -17,12 +17,10 @@ const nameify = (str) =>
 
 const srces = {
   js: 'src/plugin.js',
-  tests: glob.sync('test/**/*.test.js')
 };
 
 const dests = {
   js: nameify('dist/%s.js'),
-  tests: 'test/dist/bundle.js'
 };
 
 const tasks = {
@@ -79,7 +77,7 @@ const build = (name) => {
 mkdirp.sync('dist');
 
 // Start the server _after_ the initial bundling is done.
-build(['js', 'tests']).then(() => {
+build(['js']).then(() => {
   const server = budo({
     port: 9999,
     stream: process.stdout
