@@ -1,0 +1,13 @@
+{
+  "name": "videojs-vimvim",
+  "author": "Jimmy Bourassa &lt;jbourassa@didacte.com&gt;",
+  "license": "MIT",
+  "main": [
+    "dist/videojs-vimvim.min.js"
+  ],
+  "keywords": [
+    "videojs",
+    "videojs-plugin"
+  ]
+}
+
