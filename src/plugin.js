@@ -1,45 +1,203 @@
 import videojs from 'video.js';
+import VimeoPlayer from '@vimeo/player';
+
+const Component = videojs.getComponent('Component');
+const Tech = videojs.getComponent('Tech');
 
 // Default options for the plugin.
 const defaults = {};
 
-/**
- * Function to invoke when the player is ready.
- *
- * This is a great place for your plugin to initialize itself. When this
- * function is called, the player will have its DOM and child components
- * in place.
- *
- * @function onPlayerReady
- * @param    {Player} player
- * @param    {Object} [options={}]
- */
-const onPlayerReady = (player, options) => {
-  player.addClass('vjs-vimvim');
-};
 
 /**
- * A video.js plugin.
+ * Vimeo - Wrapper for Video Player API
  *
- * In the plugin function, the value of `this` is a video.js `Player`
- * instance. You cannot rely on the player being in a "ready" state here,
- * depending on how the plugin is invoked. This may or may not be important
- * to you; if not, remove the wait for "ready"!
- *
- * @function vimvim
- * @param    {Object} [options={}]
- *           An object of options left to the plugin author to define.
+ * @param {Object=} options Object of option names and values
+ * @param {Function=} ready Ready callback function
+ * @extends Tech
+ * @class Vimeo
  */
-const vimvim = function(options) {
-  this.ready(() => {
-    onPlayerReady(this, videojs.mergeOptions(defaults, options));
-  });
+class Vimeo extends Tech {
+  constructor(options, ready) {
+    super(options, ready);
+
+    this.setPoster(options.poster);
+    this.initVimeoPlayer();
+  }
+
+  initVimeoPlayer() {
+    const vimeoOptions = {
+      url: this.options_.source.src,
+      byline: false,
+      portrait: false,
+      title: false
+    };
+
+    if(this.options_.autoplay) {
+      vimeoOptions.autoplay = true;
+    }
+    if(this.options_.height) {
+      vimeoOptions.height = this.options_.height;
+    }
+    if(this.options_.width) {
+      vimeoOptions.width = this.options_.width;
+    }
+    if(this.options_.maxheight) {
+      vimeoOptions.maxheight = this.options_.maxheight;
+    }
+    if(this.options_.maxwidth) {
+      vimeoOptions.maxwidth = this.options_.maxwidth;
+    }
+    if(this.options_.loop) {
+      vimeoOptions.loop = this.options_.loop;
+    }
+
+    this._player = new VimeoPlayer(this.el(), vimeoOptions);
+    this.initVimeoState();
+
+    ['play', 'pause', 'ended', 'timeupdate', 'progress', 'seeked'].forEach(e => {
+      this._player.on(e, (progress) => {
+        if(this._vimeoState.progress.duration != progress.duration) {
+          this.trigger('durationchange');
+        }
+        this._vimeoState.progress = progress;
+        this.trigger(e);
+      });
+    });
+
+    this._player.on('play',  () => this._vimeoState.playing = true);
+    this._player.on('pause', () => this._vimeoState.playing = false);
+    this._player.on('ended', () => this._vimeoState.playing = false);
+    this._player.on('volumechange', (v) => this._vimeoState.volume = v);
+    this._player.on('error', e => this.trigger('error', e));
+
+    this.triggerReady();
+  }
+
+  initVimeoState() {
+    const state = this._vimeoState = {
+      playing: false,
+      volume: 0,
+      progress: {
+        seconds: 0,
+        percent: 0,
+        duration: 0,
+      }
+    };
+
+    this._player.getCurrentTime().then(time => state.progress.seconds = time);
+    this._player.getDuration().then(time => state.progress.duration = time);
+    this._player.getPaused().then(paused => state.playing = !paused);
+    this._player.getVolume().then(volume => state.volume = volume);
+  }
+
+  createEl() {
+    const div = videojs.createEl('div', {
+      id: this.options_.techId,
+      style: 'width:100%;height:100%;top:0;left:0;position:absolute'
+    });
+
+    return div;
+  }
+
+  controls() {
+    return true;
+  }
+
+  supportsFullScreen () {
+    return true;
+  }
+
+  src() {
+    // @note: Not sure why this is needed but videojs requires it
+    return this.options_.source.src;
+  }
+
+  // @note setSrc and currentSrc are used in other usecases (YouTube, Html)
+  // but they don't seem required here
+  // setSrc() {}
+  // currentSrc() {}
+
+  currentTime() { return this._vimeoState.progress.seconds; }
+  setCurrentTime(time) {
+    this._player.setCurrentTime(time);
+  }
+
+  volume() { return this._vimeoState.volume; }
+  setVolume(v) { return this._player.setVolume(volume); }
+
+  duration () { return this._vimeoState.progress.duration; }
+
+  buffered() {
+    const progress = this._vimeoState.progress;
+    return videojs.createTimeRange(0, progress.percent * progress.duration);
+  }
+
+  paused() { return !this._vimeoState.playing; }
+  pause() { this._player.pause(); }
+  play() { this._player.play(); }
+
+  // Hmm? needed?
+  // muted() { }
+  // setMuted(mute) {}
+}
+
+Vimeo.prototype.featuresTimeupdateEvents = true;
+
+Vimeo.isSupported = function () {
+  return true;
 };
 
-// Register the plugin with video.js.
-videojs.plugin('vimvim', vimvim);
+
+// Add Source Handler pattern functions to this tech
+Tech.withSourceHandlers(Vimeo);
+
+Vimeo.nativeSourceHandler = {};
+
+/**
+ * Check if Vimeo can play the given videotype
+ * @param  {String} type    The mimetype to check
+ * @return {String}         'maybe', or '' (empty string)
+ */
+Vimeo.nativeSourceHandler.canPlayType = function (source) {
+  if (source === 'video/vimeo') {
+    return 'maybe';
+  }
+
+  return '';
+};
+
+/*
+ * Check Vimeo can handle the source natively
+ *
+ * @param  {Object} source  The source object
+ * @return {String}         'maybe', or '' (empty string)
+ * @note: Copied over from YouTube — not sure this is relevant
+ */
+Vimeo.nativeSourceHandler.canHandleSource = function (source) {
+  if (source.type) {
+    return Vimeo.nativeSourceHandler.canPlayType(source.type);
+  } else if (source.src) {
+    return Vimeo.nativeSourceHandler.canPlayType(source.src);
+  }
+
+  return '';
+};
+
+// @note: Copied over from YouTube — not sure this is relevant
+Vimeo.nativeSourceHandler.handleSource = function (source, tech) {
+  tech.src(source.src);
+};
+
+// @note: Copied over from YouTube — not sure this is relevant
+Vimeo.nativeSourceHandler.dispose = function () { };
+
+Vimeo.registerSourceHandler(Vimeo.nativeSourceHandler);
+
+
+Component.registerComponent('Vimeo', Vimeo);
+Tech.registerTech('Vimeo', Vimeo);
 
 // Include the version number.
-vimvim.VERSION = '__VERSION__';
+Vimeo.VERSION = '0.0.1';
 
-export default vimvim;
+export default Vimeo;
