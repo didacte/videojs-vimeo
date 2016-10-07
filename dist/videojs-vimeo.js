@@ -33,9 +33,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 var Component = _video2.default.getComponent('Component');
 var Tech = _video2.default.getComponent('Tech');
-
-// Default options for the plugin.
-var defaults = {};
+var cssInjected = false;
 
 /**
  * Vimeo - Wrapper for Video Player API
@@ -54,6 +52,7 @@ var Vimeo = function (_Tech) {
 
     var _this = _possibleConstructorReturn(this, _Tech.call(this, options, ready));
 
+    injectCss();
     _this.setPoster(options.poster);
     _this.initVimeoPlayer();
     return _this;
@@ -150,6 +149,8 @@ var Vimeo = function (_Tech) {
       id: this.options_.techId,
       style: 'width:100%;height:100%;top:0;left:0;position:absolute'
     });
+
+    div.className = 'vjs-vimeo';
 
     return div;
   };
@@ -267,6 +268,28 @@ Vimeo.nativeSourceHandler.handleSource = function (source, tech) {
 Vimeo.nativeSourceHandler.dispose = function () {};
 
 Vimeo.registerSourceHandler(Vimeo.nativeSourceHandler);
+
+// Since the iframe can't be touched using Vimeo's way of embedding,
+// let's add a new styling rule to have the same style as `vjs-tech`
+function injectCss() {
+  if (cssInjected) {
+    return;
+  }
+  cssInjected = true;
+  var css = '\n      .vjs-vimeo iframe {\n        position: absolute;\n        top: 0;\n        left: 0;\n        width: 100%;\n        height: 100%;\n      }\n    ';
+  var head = document.head || document.getElementsByTagName('head')[0];
+
+  var style = document.createElement('style');
+  style.type = 'text/css';
+
+  if (style.styleSheet) {
+    style.styleSheet.cssText = css;
+  } else {
+    style.appendChild(document.createTextNode(css));
+  }
+
+  head.appendChild(style);
+}
 
 Component.registerComponent('Vimeo', Vimeo);
 Tech.registerTech('Vimeo', Vimeo);
