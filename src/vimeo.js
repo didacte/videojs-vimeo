@@ -90,10 +90,10 @@ class Vimeo extends Tech {
 
   createEl() {
     const div = videojs.createEl('div', {
-      id: this.options_.techId,
-      style: 'width:100%;height:100%;top:0;left:0;position:absolute'
+      id: this.options_.techId
     });
 
+    div.style.cssText = 'width:100%;height:100%;top:0;left:0;position:absolute';
     div.className = 'vjs-vimeo';
 
     return div;
