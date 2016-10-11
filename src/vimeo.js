@@ -109,13 +109,15 @@ class Vimeo extends Tech {
 
   src() {
     // @note: Not sure why this is needed but videojs requires it
+    return this.options_.source;
+  }
+
+  currentSrc() {
     return this.options_.source.src;
   }
 
-  // @note setSrc and currentSrc are used in other usecases (YouTube, Html)
-  // but they don't seem required here
+  // @note setSrc is used in other usecases (YouTube, Html) it doesn't seem required here
   // setSrc() {}
-  // currentSrc() {}
 
   currentTime() { return this._vimeoState.progress.seconds; }
   setCurrentTime(time) {
