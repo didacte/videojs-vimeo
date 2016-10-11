@@ -165,13 +165,15 @@ var Vimeo = function (_Tech) {
 
   Vimeo.prototype.src = function src() {
     // @note: Not sure why this is needed but videojs requires it
+    return this.options_.source;
+  };
+
+  Vimeo.prototype.currentSrc = function currentSrc() {
     return this.options_.source.src;
   };
 
-  // @note setSrc and currentSrc are used in other usecases (YouTube, Html)
-  // but they don't seem required here
+  // @note setSrc is used in other usecases (YouTube, Html) it doesn't seem required here
   // setSrc() {}
-  // currentSrc() {}
 
   Vimeo.prototype.currentTime = function currentTime() {
     return this._vimeoState.progress.seconds;
@@ -210,8 +212,12 @@ var Vimeo = function (_Tech) {
     this._player.play();
   };
 
-  // Hmm? needed?
-  // muted() { }
+  Vimeo.prototype.muted = function muted() {
+    return this._vimeoState.volume === 0;
+  };
+
+  // Vimeo does has a mute API and native controls aren't being used,
+  // so setMuted doesn't really make sense and shouldn't be called.
   // setMuted(mute) {}
 
 
