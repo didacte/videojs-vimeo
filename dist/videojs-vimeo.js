@@ -100,14 +100,16 @@ var Vimeo = function (_Tech) {
       });
     });
 
-    this._player.on('play', function () {
-      return _this2._vimeoState.playing = true;
-    });
     this._player.on('pause', function () {
       return _this2._vimeoState.playing = false;
     });
+    this._player.on('play', function () {
+      _this2._vimeoState.playing = true;
+      _this2._vimeoState.ended = false;
+    });
     this._player.on('ended', function () {
-      return _this2._vimeoState.playing = false;
+      _this2._vimeoState.playing = false;
+      _this2._vimeoState.ended = true;
     });
     this._player.on('volumechange', function (v) {
       return _this2._vimeoState.volume = v;
@@ -121,6 +123,7 @@ var Vimeo = function (_Tech) {
 
   Vimeo.prototype.initVimeoState = function initVimeoState() {
     var state = this._vimeoState = {
+      ended: false,
       playing: false,
       volume: 0,
       progress: {
@@ -214,6 +217,10 @@ var Vimeo = function (_Tech) {
 
   Vimeo.prototype.muted = function muted() {
     return this._vimeoState.volume === 0;
+  };
+
+  Vimeo.prototype.ended = function ended() {
+    return this._vimeoState.ended;
   };
 
   // Vimeo does has a mute API and native controls aren't being used,
