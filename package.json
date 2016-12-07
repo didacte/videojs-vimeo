@@ -16,24 +16,17 @@
     "build:js:browserify": "browserify . -g browserify-shim -s videojs-vimeo -o dist/videojs-vimeo.js",
     "build:js:collapse": "bundle-collapser dist/videojs-vimeo.js -o dist/videojs-vimeo.min.js",
     "build:js:uglify": "uglifyjs dist/videojs-vimeo.min.js --comments --mangle --compress -o dist/videojs-vimeo.min.js",
-    "build:test": "babel-node scripts/build-test.js",
     "clean": "rimraf dist test/dist es5 && mkdirp dist test/dist es5",
     "lint": "vjsstandard",
     "start": "babel-node scripts/server.js",
-    "pretest": "npm-run-all lint build",
-    "test": "karma start test/karma.conf.js",
-    "test:chrome": "npm run pretest && karma start test/karma.conf.js --browsers Chrome",
-    "test:firefox": "npm run pretest && karma start test/karma.conf.js --browsers Firefox",
-    "test:ie": "npm run pretest && karma start test/karma.conf.js --browsers IE",
-    "test:safari": "npm run pretest && karma start test/karma.conf.js --browsers Safari",
-    "preversion": "npm test",
     "version": "babel-node scripts/version.js",
     "postversion": "babel-node scripts/postversion.js",
     "prepublish": "npm run build"
   },
   "keywords": [
     "videojs",
-    "videojs-plugin"
+    "videojs-plugin",
+    "vimeo"
   ],
   "author": "Jimmy Bourassa <jbourassa@didacte.com>",
   "license": "MIT",
@@ -58,8 +51,7 @@
       "docs",
       "es5",
       "scripts",
-      "test/dist",
-      "test/karma.conf.js"
+      "test/dist"
     ]
   },
   "files": [
@@ -73,6 +65,7 @@
     "src/"
   ],
   "dependencies": {
+    "@vimeo/player": "^2.0.1",
     "browserify-versionify": "^1.0.6",
     "video.js": "^5.10.1"
   },
